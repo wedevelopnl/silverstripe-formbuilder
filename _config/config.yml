@@ -1,0 +1,7 @@
+---
+Name: formbuilder
+---
+
+SilverStripe\Control\Director:
+  rules:
+    'FormbuilderController//$Action/$ID/$Name': 'TheWebmen\Formbuilder\Controllers\FormbuilderController'

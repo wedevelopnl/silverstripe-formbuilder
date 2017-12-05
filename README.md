@@ -6,14 +6,15 @@ Afzender kunnen zetten (of input of een veld naam)
 Onderwerp mails kunnen zetten
 Settings kunnen zetten via yml als gezet dan hide in cms
 Bedankt mail
-Velden kunnen toevoegen diverse types
-Velden verplicht maken
 Via yml velden kunnen toevoegen die er altijd zijn
-
-Via extensie aan een pagina toe te voegen
-Alles onder 1 tab
-
+Bedanktpagina
 Submissions saven (optie?)
-Velden en data opslaan in json
+Alles door translate
+Documentatie maken
 
-http://briandetering.net/repeater
+TYPES:
+-Checkbox
+-Checkbox group
+-Radio group
+-Dropdown
+-Textarea field

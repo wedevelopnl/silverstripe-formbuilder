@@ -1,0 +1,68 @@
+.formbuilderfields > label {
+    display: none !important;
+}
+
+.formbuilderfields > .form__field-holder {
+    max-width: 100% !important;
+    -webkit-flex: 0 0 100% !important;;
+    flex: 0 0 100% !important;;
+}
+
+.formbuilder-hidden {
+    overflow: hidden;
+    width: 0;
+    height: 0;
+    margin: 0;
+}
+
+.formbuilder-toolbar {
+    overflow: hidden;
+}
+
+.formbuilder-toolbar > select {
+    width: 200px;
+    float: left;
+    height: 2.924rem;
+    border-radius: .25rem 0 0 .25rem;
+}
+
+.formbuilder-toolbar > a {
+    float: left;
+    height: 2.924rem;
+    border-radius: 0 .25rem .25rem 0;
+    line-height: 25px;
+}
+
+table.formbuilder-fields th {
+    white-space: nowrap;
+}
+
+table.formbuilder-fields td {
+    vertical-align: middle;
+}
+
+.formbuilder-sort:after {
+    content: ")";
+    display: inline-block;
+    color: #9ba5ae;
+    font-family: silverstripe;
+    cursor: move;
+}
+
+.formbuilder-remove {
+    background: #FFF;
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    text-align: center;
+    line-height: 30px;
+    border-radius: 50%;
+    color: #5589a7;
+}
+.formbuilder-remove:hover {
+    background: #d8e4eb;
+    text-decoration: none;
+}
+.formbuilder-remove:before {
+    line-height: 30px;
+}
