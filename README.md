@@ -7,7 +7,6 @@ Onderwerp mails kunnen zetten
 Settings kunnen zetten via yml als gezet dan hide in cms
 Bedankt mail
 Via yml velden kunnen toevoegen die er altijd zijn
-Bedanktpagina
 Submissions saven (optie?)
 Alles door translate
 Documentatie maken

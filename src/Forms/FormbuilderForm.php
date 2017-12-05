@@ -20,6 +20,12 @@ class FormbuilderForm extends Form
     private $_nameFilter = false;
     private $_names = [];
 
+    /**
+     * FormbuilderForm constructor.
+     * @param \SilverStripe\Control\RequestHandler|string $name
+     * @param string $fieldsJsonData
+     * @param FieldList $pageID
+     */
     public function __construct($name = self::DEFAULT_NAME, $fieldsJsonData, $pageID)
     {
         //Name filter
@@ -61,17 +67,33 @@ class FormbuilderForm extends Form
         parent::__construct($controller, $name, $fields, $actions, $validator);
     }
 
+    /**
+     * Handle form subbmissions
+     * @param $data
+     * @param Form $form
+     * @return \SilverStripe\Control\HTTPResponse
+     */
     public function handle($data, Form $form)
     {
         $page = SiteTree::get()->byID($data['FormPageID']);
         var_dump($data);
         var_dump($page);
         die;
+        if(method_exists($page, 'handleFormbuilderForm')){
+            $page->handleFormbuilderForm($this, $data);
+        }else{
+            $this->sessionMessage('Form send message', 'good');
+            return $this->controller->redirect($page->Link());
+        }
         //Create submission if enabled
         //Send mails
-        //Show message or redirect of whatever? misschien via de class waar de extensie op zit laten lopen?
     }
 
+    /**
+     * Generate a unique field name based on the title
+     * @param $title
+     * @return string
+     */
     private function generateFieldName($title)
     {
         $name = $this->_nameFilter->filter($title);
