@@ -10,15 +10,26 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\CheckboxField;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\FieldType\DBHTMLText;
+use SilverStripe\View\ArrayData;
 use SilverStripe\View\Parsers\URLSegmentFilter;
 use TheWebmen\Formbuilder\Controllers\FormbuilderController;
+use TheWebmen\Formbuilder\Model\FormbuilderSubmission;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\Forms\CheckboxSetField;
+use SilverStripe\Forms\TextareaField;
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Control\Email\Email;
 
 class FormbuilderForm extends Form
 {
 
     private $_nameFilter = false;
     private $_names = [];
+    private $_labels = [];
 
     /**
      * FormbuilderForm constructor.
@@ -38,16 +49,34 @@ class FormbuilderForm extends Form
         $fields = new FieldList();
         foreach ($fieldsJsonData as $fieldJsonData) {
             $field = false;
+            if (!isset($fieldJsonData->title) || $fieldJsonData->title == '') {
+                continue;
+            }
             $fieldName = $this->generateFieldName($fieldJsonData->title);
             switch ($fieldJsonData->type) {
                 case 'textfield':
                     $field = TextField::create($fieldName, $fieldJsonData->title);
+                    break;
+                case 'textarea':
+                    $field = TextareaField::create($fieldName, $fieldJsonData->title);
                     break;
                 case 'emailfield':
                     $field = EmailField::create($fieldName, $fieldJsonData->title);
                     break;
                 case 'checkbox':
                     $field = CheckboxField::create($fieldName, $fieldJsonData->title);
+                    break;
+                case 'checkboxset':
+                    $options = $this->generateOptions($fieldJsonData->options);
+                    $field = CheckboxSetField::create($fieldName, $fieldJsonData->title, $options);
+                    break;
+                case 'dropdown':
+                    $options = $this->generateOptions($fieldJsonData->options);
+                    $field = DropdownField::create($fieldName, $fieldJsonData->title, $options);
+                    break;
+                case 'radiogroup':
+                    $options = $this->generateOptions($fieldJsonData->options);
+                    $field = OptionsetField::create($fieldName, $fieldJsonData->title, $options);
                     break;
             }
             if ($field) {
@@ -65,6 +94,21 @@ class FormbuilderForm extends Form
 
         $controller = new FormbuilderController();
         parent::__construct($controller, $name, $fields, $actions, $validator);
+
+        if ($this->hasExtension('SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension')) {
+            $this->enableSpamProtection();
+        }
+    }
+
+    public function generateOptions($data)
+    {
+        $out = array();
+        foreach ($data as $item) {
+            if (isset($item->value) && isset($item->label) && $item->label != '') {
+                $out[$item->value] = $item->label;
+            }
+        }
+        return $out;
     }
 
     /**
@@ -75,18 +119,87 @@ class FormbuilderForm extends Form
      */
     public function handle($data, Form $form)
     {
+        //Get page
         $page = SiteTree::get()->byID($data['FormPageID']);
-        var_dump($data);
-        var_dump($page);
-        die;
-        if(method_exists($page, 'handleFormbuilderForm')){
+
+        //Remove data
+        unset($data['FormPageID']);
+        unset($data['SecurityID']);
+        unset($data['action_handle']);
+
+        //Submission
+        $submission = new FormbuilderSubmission();
+        $submission->SiteTreeID = $page->ID;
+        $submission->Data = json_encode($data);
+        $submission->write();
+
+        //Email
+        $emailReceivers = $page->FormbuilderFormReceiver;
+        if ($emailReceivers) {
+            $emailSubject = $page->FormbuilderFormSubject ? $page->FormbuilderFormSubject : 'Default subject';
+            $emailSender = $page->FormbuilderFormSender;
+            if (strpos($emailSender, '@') == FALSE) {
+                $emailSender = $data[$this->generateFieldName($emailSender, true)];
+                if (!$emailSender) {
+                    $emailSender = 'no-email@found.com';
+                }
+            }
+            $emailReceivers = explode(';', $emailReceivers);
+            $emailData = new ArrayList();
+            foreach($data as $key => $value){
+                if(is_array($value)){
+                    $value = implode(',', $value);
+                }
+                $emailData->push(new ArrayData([
+                    'Value' => $value,
+                    'Key' => $key,
+                    'Label' => $this->_labels[$key]
+                ]));
+            }
+            foreach ($emailReceivers as $receiver) {
+                $email = Email::create();
+                $email->setHTMLTemplate('Email\\FormbuilderEmail');
+                $email->setData([
+                    'FormData' => $emailData
+                ]);
+                $email->setFrom($emailSender);
+                $email->setTo($receiver);
+                $email->setSubject($emailSubject);
+                $email->send();
+            }
+        }
+
+        //Auto reply email
+        if($page->FormbuilderAutoReplySender && $page->FormbuilderAutoReplyReceiver && $page->FormbuilderAutoReplySubject && $page->FormbuilderAutoReplyContent){
+            $receiver = $data[$this->generateFieldName($page->FormbuilderAutoReplyReceiver, true)];
+            if($receiver){
+                $emailContent = $page->FormbuilderAutoReplyContent;
+                foreach($data as $key => $value){
+                    if(is_array($value)){
+                        $value = implode(',', $value);
+                    }
+                    $stringToReplace = '['.$this->_labels[$key].']';
+                    $emailContent = str_replace($stringToReplace, $value, $emailContent);
+                }
+                $email = Email::create();
+                $email->setHTMLTemplate('Email\\FormbuilderAutoReplayEmail');
+                $email->setData([
+                    'Content' => DBField::create_field(DBHTMLText::class, $emailContent)
+                ]);
+                $email->setFrom($page->FormbuilderAutoReplySender);
+                $email->setTo($receiver);
+                $email->setSubject($page->FormbuilderAutoReplySubject);
+                $email->send();
+            }
+        }
+
+        //Finish
+        if (method_exists($page, 'handleFormbuilderForm')) {
             $page->handleFormbuilderForm($this, $data);
-        }else{
+        } else {
             $this->sessionMessage('Form send message', 'good');
             return $this->controller->redirect($page->Link());
         }
-        //Create submission if enabled
-        //Send mails
     }
 
     /**
@@ -94,15 +207,19 @@ class FormbuilderForm extends Form
      * @param $title
      * @return string
      */
-    private function generateFieldName($title)
+    private function generateFieldName($title, $getExisting = false)
     {
         $name = $this->_nameFilter->filter($title);
-        if(array_key_exists($name, $this->_names)){
+        if ($getExisting) {
+            return array_key_exists($name, $this->_names) ? $name : false;
+        }
+        if (array_key_exists($name, $this->_names)) {
             $this->_names[$name] = $this->_names[$name] + 1;
             $name = $name . $this->_names[$name];
-        }else{
+        } else {
             $this->_names[$name] = 0;
         }
+        $this->_labels[$name] = $title;
         return $name;
     }
 

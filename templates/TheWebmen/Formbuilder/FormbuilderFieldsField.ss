@@ -5,7 +5,17 @@
                 Text field
             </td>
             <td>
-                -
+                &nbsp;
+            </td>
+        </tr>
+    </script>
+    <script type="text/x-tmpl" class="textarea-template">
+        <tr>
+            <td>
+                Textarea
+            </td>
+            <td>
+                &nbsp;
             </td>
         </tr>
     </script>
@@ -15,7 +25,7 @@
                 Email field
             </td>
             <td>
-                -
+                &nbsp;
             </td>
         </tr>
     </script>
@@ -25,7 +35,52 @@
                 Checkbox
             </td>
             <td>
-                <label><input type="checkbox" /> Default checked</label>
+                &nbsp;
+            </td>
+        </tr>
+    </script>
+    <script type="text/x-tmpl" class="checkboxset-template">
+        <tr>
+            <td>
+                Checkboxset
+            </td>
+            <td>
+                <table class="formbuilder-multipleoptions">
+                    <tr>
+                        <td><input type="text" class="text" placeholder="Value" name="value" /></td>
+                        <td><input type="text" class="text" placeholder="Label" name="label" /></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </script>
+    <script type="text/x-tmpl" class="radiogroup-template">
+        <tr>
+            <td>
+                Radiogroup
+            </td>
+            <td>
+                <table class="formbuilder-multipleoptions">
+                    <tr>
+                        <td><input type="text" class="text" placeholder="Value" name="value" /></td>
+                        <td><input type="text" class="text" placeholder="Label" name="label" /></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </script>
+    <script type="text/x-tmpl" class="dropdown-template">
+        <tr>
+            <td>
+                Dropdown
+            </td>
+            <td>
+                <table class="formbuilder-multipleoptions">
+                    <tr>
+                        <td><input type="text" class="text" placeholder="Value" name="value" /></td>
+                        <td><input type="text" class="text" placeholder="Label" name="label" /></td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </script>
@@ -36,8 +91,12 @@
     <div class="formbuilder-toolbar">
         <select class="formbuilder-fieldtype">
             <option value="textfield">Text field</option>
+            <option value="textarea">Textarea</option>
             <option value="emailfield">Email field</option>
             <option value="checkbox">Checkbox</option>
+            <option value="checkboxset">Checkboxset</option>
+            <option value="radiogroup">Radiogroup</option>
+            <option value="dropdown">Dropdown</option>
         </select>
         <a class="btn btn-primary tool-button font-icon-plus formbuilder-addbutton" href="#">Add field</a>
     </div>

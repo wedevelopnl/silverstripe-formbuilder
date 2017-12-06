@@ -37,10 +37,6 @@ table.formbuilder-fields th {
     white-space: nowrap;
 }
 
-table.formbuilder-fields td {
-    vertical-align: middle;
-}
-
 .formbuilder-sort:after {
     content: ")";
     display: inline-block;
@@ -65,4 +61,29 @@ table.formbuilder-fields td {
 }
 .formbuilder-remove:before {
     line-height: 30px;
+}
+
+.formbuilder-multipleoptions {
+    width: 100%;
+}
+.formbuilder-multipleoptions th,
+.formbuilder-multipleoptions td {
+    padding-top: 0;
+    padding-bottom: 5px;
+    border-bottom: none;
+    border-top: none!important;
+    padding-left: 0!important;
+    padding-right: 0!important;
+}
+.formbuilder-multipleoptions th:not(:last-child),
+.formbuilder-multipleoptions td:not(:last-child) {
+    padding-right: 5px!important;
+}
+.formbuilder-multipleoptions,
+.formbuilder-multipleoptions thead,
+.formbuilder-multipleoptions tbody,
+.formbuilder-multipleoptions td,
+.formbuilder-multipleoptions tr,
+.formbuilder-multipleoptions tr:hover {
+    background: none!important;
 }
