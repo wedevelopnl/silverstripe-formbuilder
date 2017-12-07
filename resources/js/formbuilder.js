@@ -22,7 +22,7 @@
         //Remove button
         this.on('click', '.formbuilder-remove', function (e) {
           e.preventDefault();
-          if (confirm('Are you sure?')) {
+          if (confirm(self.data('confirm-text'))) {
             $(this).closest('tr').remove();
             self.updateJSON();
           }

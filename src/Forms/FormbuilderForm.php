@@ -90,7 +90,7 @@ class FormbuilderForm extends Form
         $fields->push(HiddenField::create('FormPageID')->setValue($pageID));
 
         //Actions
-        $actions = new FieldList(FormAction::create('handle', 'Send'));
+        $actions = new FieldList(FormAction::create('handle', _t(self::class . '.SEND', 'Send')));
 
         $controller = new FormbuilderController();
         parent::__construct($controller, $name, $fields, $actions, $validator);
@@ -136,7 +136,7 @@ class FormbuilderForm extends Form
         //Email
         $emailReceivers = $page->FormbuilderFormReceiver;
         if ($emailReceivers) {
-            $emailSubject = $page->FormbuilderFormSubject ? $page->FormbuilderFormSubject : 'Default subject';
+            $emailSubject = $page->FormbuilderFormSubject ? $page->FormbuilderFormSubject : _t(self::class . '.DEFAULT_SUBJECT', 'New email via the website');
             $emailSender = $page->FormbuilderFormSender;
             if (strpos($emailSender, '@') == FALSE) {
                 $emailSender = $data[$this->generateFieldName($emailSender, true)];
@@ -195,9 +195,9 @@ class FormbuilderForm extends Form
 
         //Finish
         if (method_exists($page, 'handleFormbuilderForm')) {
-            $page->handleFormbuilderForm($this, $data);
+            $page->handleFormbuilderForm($this, $data, $submission);
         } else {
-            $this->sessionMessage('Form send message', 'good');
+            $this->sessionMessage(_t(self::class . '.FORM_SEND_MESSAGE', 'Form send successfully'), 'good');
             return $this->controller->redirect($page->Link());
         }
     }

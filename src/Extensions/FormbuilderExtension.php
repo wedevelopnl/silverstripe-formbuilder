@@ -3,7 +3,6 @@
 namespace TheWebmen\Formbuilder\Extensions;
 
 use SilverStripe\Forms\TabSet;
-use SilverStripe\GraphQL\Controller;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\Forms\FieldList;
 use TheWebmen\Formbuilder\Forms\FormbuilderForm;
@@ -33,24 +32,26 @@ class FormbuilderExtension extends DataExtension {
 
     public function updateCMSFields(FieldList $fields)
     {
-        $fields->addFieldsToTab('Root', new TabSet('Form'));
+        $fields->addFieldsToTab('Root', new TabSet('Form', _t(self::class . '.FORM', 'Form')));
 
-        $fields->addFieldToTab('Root.Form.Fields', FormbuilderFieldsField::create('FormbuilderFields'));
+        $fields->addFieldToTab('Root.Form.Fields', FormbuilderFieldsField::create('FormbuilderFields', _t(self::class . '.FORMBUILDER_FIELDS', 'Fields')));
 
         $fields->addFieldsToTab('Root.Form.Email', [
-            TextField::create('FormbuilderFormSender')->setDescription('This could be an email adres or the name of a email form field to use the users input as sender'),
-            TextField::create('FormbuilderFormReceiver')->setDescription('Seperate with a ; to add multiple receivers'),
-            TextField::create('FormbuilderFormSubject')
+            TextField::create('FormbuilderFormSender', _t(self::class . '.FORMBUILDER_FORM_SENDER', 'Form email sender'))->setDescription(_t(self::class . '.FORMBUILDER_FORM_SENDER_DESCRIPTION', 'This could be an email adres or the title of an email form field if you want to use the users input as sender')),
+            TextField::create('FormbuilderFormReceiver', _t(self::class . '.FORMBUILDER_FORM_RECEIVER', 'Form email receiver'))->setDescription(_t(self::class . '.FORMBUILDER_FORM_RECEIVER_DESCRIPTION', 'Seperate with a ; to add multiple receivers')),
+            TextField::create('FormbuilderFormSubject', _t(self::class . '.FORMBUILDER_FORM_SUBJECT', 'Form email subject'))
         ]);
 
-        $fields->addFieldsToTab('Root.Form.AutoReply', [
-            TextField::create('FormbuilderAutoReplySender'),
-            TextField::create('FormbuilderAutoReplyReceiver')->setDescription('Use the name of a email form field'),
-            TextField::create('FormbuilderAutoReplySubject'),
-            HTMLEditorField::create('FormbuilderAutoReplyContent')
+        $fields->findOrMakeTab('Root.Form.Autoreply', _t(self::class . '.AUTOREPLY', 'Autoreply'));
+        $fields->addFieldsToTab('Root.Form.Autoreply', [
+            TextField::create('FormbuilderAutoReplySender', _t(self::class . '.FORMBUILDER_AUTOREPLY_SENDER', 'Autoreply email sender')),
+            TextField::create('FormbuilderAutoReplyReceiver', _t(self::class . '.FORMBUILDER_AUTOREPLY_RECEIVER', 'Autoreply email receiver'))->setDescription(_t(self::class . '.FORMBUILDER_AUTOREPLY_RECEIVER_DESCRIPTION', 'Use the title of an email form field')),
+            TextField::create('FormbuilderAutoReplySubject', _t(self::class . '.FORMBUILDER_AUTOREPLY_SUBJECT', 'Autoreply email subject')),
+            HTMLEditorField::create('FormbuilderAutoReplyContent', _t(self::class . '.FORMBUILDER_AUTOREPLY_CONTENT', 'Autoreply email content'))->setDescription(_t(self::class . '.FORMBUILDER_AUTOREPLY_CONTENT_DESCRIPTION', 'You can use user input by wrapping the title of a field in brackets, for example: [Name]'))
         ]);
 
-        $fields->addFieldToTab('Root.Form.Submissions', GridField::create('FormbuilderSubmissions', 'Submissions', $this->owner->FormbuilderSubmissions(), GridFieldConfig_RecordViewer::create()));
+        $fields->findOrMakeTab('Root.Form.Submissions', _t(self::class . '.has_many_FormbuilderSubmissions', 'Submissions'));
+        $fields->addFieldToTab('Root.Form.Submissions', GridField::create('FormbuilderSubmissions', _t(self::class . '.FORMBUILDER_SUBMISSIONS', 'Submissions'), $this->owner->FormbuilderSubmissions(), GridFieldConfig_RecordViewer::create()));
     }
 
     public function FormbuilderForm(){
