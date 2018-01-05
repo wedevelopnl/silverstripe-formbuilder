@@ -8,6 +8,8 @@ use SilverStripe\Forms\TextField;
 
 class FormbuilderSubmission extends DataObject {
 
+    private static $table_name = 'TheWebmen_FormbuilderSubmission';
+
     private static $db = array(
         'Data' => 'Text'
     );
