@@ -2,6 +2,7 @@
 
 namespace TheWebmen\Formbuilder\Extensions;
 
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\TabSet;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\Forms\FieldList;
@@ -14,6 +15,8 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
 
 class FormbuilderExtension extends DataExtension {
+
+    private static $save_submissions = true;
 
     private static $db = [
         'FormbuilderFields' => 'Text',
@@ -50,8 +53,13 @@ class FormbuilderExtension extends DataExtension {
             HTMLEditorField::create('FormbuilderAutoReplyContent', _t(self::class . '.FORMBUILDER_AUTOREPLY_CONTENT', 'Autoreply email content'))->setDescription(_t(self::class . '.FORMBUILDER_AUTOREPLY_CONTENT_DESCRIPTION', 'You can use user input by wrapping the title of a field in brackets, for example: [Name]'))
         ]);
 
-        $fields->findOrMakeTab('Root.Form.Submissions', _t(self::class . '.has_many_FormbuilderSubmissions', 'Submissions'));
-        $fields->addFieldToTab('Root.Form.Submissions', GridField::create('FormbuilderSubmissions', _t(self::class . '.FORMBUILDER_SUBMISSIONS', 'Submissions'), $this->owner->FormbuilderSubmissions(), GridFieldConfig_RecordViewer::create()));
+        if(Config::inst()->get(self::class, 'save_submissions')){
+            $fields->findOrMakeTab('Root.Form.Submissions', _t(self::class . '.has_many_FormbuilderSubmissions', 'Submissions'));
+            $fields->addFieldToTab('Root.Form.Submissions', GridField::create('FormbuilderSubmissions', _t(self::class . '.FORMBUILDER_SUBMISSIONS', 'Submissions'), $this->owner->FormbuilderSubmissions(), GridFieldConfig_RecordViewer::create()));
+        }else{
+            $fields->removeByName('FormbuilderSubmissions');
+        }
+
     }
 
     public function FormbuilderForm(){

@@ -26,8 +26,8 @@ nl:
     DEFAULT_SUBJECT: 'Nieuwe email via de website'
     FORM_SEND_MESSAGE: 'Formulier met succes verzonden'
   Formbuilder:
-    TEXTFIELD: 'Textveld'
-    TEXTAREA: 'Textvlak'
+    TEXTFIELD: 'Tekstveld'
+    TEXTAREA: 'Tekstvlak'
     EMAILFIELD: 'Emailveld'
     CHECKBOX: 'Selectie vakje'
     CHECKBOXSET: 'Selectie vakjes set'

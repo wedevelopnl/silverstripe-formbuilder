@@ -16,6 +16,7 @@ use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\Parsers\URLSegmentFilter;
 use TheWebmen\Formbuilder\Controllers\FormbuilderController;
+use TheWebmen\Formbuilder\Extensions\FormbuilderExtension;
 use TheWebmen\Formbuilder\Model\FormbuilderSubmission;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\CheckboxSetField;
@@ -128,10 +129,15 @@ class FormbuilderForm extends Form
         unset($data['action_handle']);
 
         //Submission
-        $submission = new FormbuilderSubmission();
-        $submission->SiteTreeID = $page->ID;
-        $submission->Data = json_encode($data);
-        $submission->write();
+        if(Config::inst()->get(FormbuilderExtension::class, 'save_submissions')){
+            $submission = new FormbuilderSubmission();
+            $submission->SiteTreeID = $page->ID;
+            $submission->Data = json_encode($data);
+            $submission->write();
+        }else{
+            $submission = false;
+        }
+
 
         //Email
         $emailReceivers = $page->FormbuilderFormReceiver;
