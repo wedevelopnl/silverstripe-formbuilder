@@ -100,6 +100,8 @@ class FormbuilderForm extends Form
         if ($this->hasExtension('SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension')) {
             $this->enableSpamProtection();
         }
+        
+        $this->extend('onAfterConstruct');
     }
 
     public function generateOptions($data)
@@ -114,7 +116,7 @@ class FormbuilderForm extends Form
     }
 
     /**
-     * Handle form subbmissions
+     * Handle form submissions
      * @param $data
      * @param Form $form
      * @return \SilverStripe\Control\HTTPResponse
@@ -138,7 +140,6 @@ class FormbuilderForm extends Form
         }else{
             $submission = false;
         }
-
 
         //Email
         $emailReceivers = $page->FormbuilderFormReceiver;
