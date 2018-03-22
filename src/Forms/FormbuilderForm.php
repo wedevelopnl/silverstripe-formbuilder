@@ -203,7 +203,7 @@ class FormbuilderForm extends Form
 
         //Finish
         if (method_exists($page, 'handleFormbuilderForm')) {
-            $page->handleFormbuilderForm($this, $data, $submission);
+            return $page->handleFormbuilderForm($this, $data, $submission);
         } else {
             $this->sessionMessage(_t(self::class . '.FORM_SEND_MESSAGE', 'Form send successfully'), 'good');
             return $this->controller->redirect($page->Link());
