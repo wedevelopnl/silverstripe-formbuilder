@@ -158,11 +158,13 @@ class FormbuilderForm extends Form
                 if(is_array($value)){
                     $value = implode(',', $value);
                 }
-                $emailData->push(new ArrayData([
-                    'Value' => $value,
-                    'Key' => $key,
-                    'Label' => $this->_labels[$key]
-                ]));
+                if(array_key_exists($key, $this->_labels)){
+                    $emailData->push(new ArrayData([
+                        'Value' => $value,
+                        'Key' => $key,
+                        'Label' => $this->_labels[$key]
+                    ]));
+                }
             }
             foreach ($emailReceivers as $receiver) {
                 $email = Email::create();
