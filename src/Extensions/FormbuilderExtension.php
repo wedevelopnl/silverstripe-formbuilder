@@ -21,6 +21,7 @@ class FormbuilderExtension extends DataExtension {
     private static $db = [
         'FormbuilderFields' => 'Text',
         'FormbuilderFormSender' => 'Varchar(155)',
+        'FormbuilderFormReplyTo' => 'Varchar(155)',
         'FormbuilderFormReceiver' => 'Varchar(255)',
         'FormbuilderFormSubject' => 'Varchar',
         'FormbuilderAutoReplySender' => 'Varchar(155)',
@@ -41,6 +42,7 @@ class FormbuilderExtension extends DataExtension {
 
         $fields->addFieldsToTab('Root.Form.Email', [
             TextField::create('FormbuilderFormSender', _t(self::class . '.FORMBUILDER_FORM_SENDER', 'Form email sender'))->setDescription(_t(self::class . '.FORMBUILDER_FORM_SENDER_DESCRIPTION', 'This could be an email adres or the title of an email form field if you want to use the users input as sender')),
+            TextField::create('FormbuilderFormReplyTo', _t(self::class . '.FORMBUILDER_FORM_REPLY_TO', 'Form email replyto'))->setDescription(_t(self::class . '.FORMBUILDER_FORM_SENDER_DESCRIPTION', 'This could be an email adres or the title of an email form field if you want to use the users input as sender')),
             TextField::create('FormbuilderFormReceiver', _t(self::class . '.FORMBUILDER_FORM_RECEIVER', 'Form email receiver'))->setDescription(_t(self::class . '.FORMBUILDER_FORM_RECEIVER_DESCRIPTION', 'Seperate with a ; to add multiple receivers')),
             TextField::create('FormbuilderFormSubject', _t(self::class . '.FORMBUILDER_FORM_SUBJECT', 'Form email subject'))
         ]);
