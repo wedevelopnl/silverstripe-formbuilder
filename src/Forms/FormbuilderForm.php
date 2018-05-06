@@ -145,12 +145,19 @@ class FormbuilderForm extends Form
         $emailReceivers = $page->FormbuilderFormReceiver;
         if ($emailReceivers) {
             $emailSubject = $page->FormbuilderFormSubject ? $page->FormbuilderFormSubject : _t(self::class . '.DEFAULT_SUBJECT', 'New email via the website');
+            $emailReplyTo = $page->FormbuilderFormReplyTo;
             $emailSender = $page->FormbuilderFormSender;
             if (strpos($emailSender, '@') == FALSE) {
                 $emailSender = $data[$this->generateFieldName($emailSender, true)];
                 if (!$emailSender) {
                     $emailSender = 'no-email@found.com';
                 }
+            }
+            if (strpos($emailReplyTo, '@') == FALSE) {
+                $emailReplyTo = $data[$this->generateFieldName($emailReplyTo, true)];
+            }
+            if (!$emailReplyTo) {
+                $emailReplyTo = $emailSender;
             }
             $emailReceivers = explode(';', $emailReceivers);
             $emailData = new ArrayList();
@@ -172,6 +179,7 @@ class FormbuilderForm extends Form
                 $email->setData([
                     'FormData' => $emailData
                 ]);
+                $email->setReplyTo($emailReplyTo);
                 $email->setFrom($emailSender);
                 $email->setTo($receiver);
                 $email->setSubject($emailSubject);
