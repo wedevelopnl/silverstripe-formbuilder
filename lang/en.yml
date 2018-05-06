@@ -8,6 +8,7 @@ en:
   TheWebmen\Formbuilder\Extensions\FormbuilderExtension:
     FORMBUILDER_FIELDS: 'Fields'
     FORMBUILDER_FORM_SENDER: 'Form email sender'
+    FORMBUILDER_FORM_REPLY_TO: 'Form email replyto'
     FORMBUILDER_FORM_RECEIVER: 'Form email receiver'
     FORMBUILDER_FORM_SUBJECT: 'Form email subject'
     FORMBUILDER_AUTOREPLY_SENDER: 'Autoreply email sender'
