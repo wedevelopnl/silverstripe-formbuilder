@@ -8,6 +8,7 @@ nl:
   TheWebmen\Formbuilder\Extensions\FormbuilderExtension:
     FORMBUILDER_FIELDS: 'Velden'
     FORMBUILDER_FORM_SENDER: 'Formulier email afzender'
+    FORMBUILDER_FORM_REPLY_TO: 'Formulier email replyto'
     FORMBUILDER_FORM_RECEIVER: 'Formulier email ontvanger'
     FORMBUILDER_FORM_SUBJECT: 'Formulier email onderwerp'
     FORMBUILDER_AUTOREPLY_SENDER: 'Autoreply email afzender'
