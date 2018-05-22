@@ -153,7 +153,7 @@ class FormbuilderForm extends Form
                     $emailSender = 'no-email@found.com';
                 }
             }
-            if (strpos($emailReplyTo, '@') == FALSE) {
+            if ($emailReplyTo && strpos($emailReplyTo, '@') == FALSE) {
                 $emailReplyTo = $data[$this->generateFieldName($emailReplyTo, true)];
             }
             if (!$emailReplyTo) {
