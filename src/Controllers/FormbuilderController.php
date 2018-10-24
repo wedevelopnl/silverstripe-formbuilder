@@ -4,6 +4,7 @@ namespace TheWebmen\Formbuilder\Controllers;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\ORM\DataObject;
 use TheWebmen\Formbuilder\Forms\FormbuilderForm;
 
 class FormbuilderController extends Controller {
@@ -22,15 +23,17 @@ class FormbuilderController extends Controller {
         if(!$r->isPOST()){
             $this->httpError(404);
         }
-        $formPageID = $r->postVar('FormPageID');
-        if(!$formPageID || !$page = SiteTree::get()->byID($formPageID)){
+
+        $formOwnerID = $r->postVar('OwnerID');
+        $formOwnerClass = $r->postVar('OwnerClass');
+        if(!$formOwnerID || !$formOwnerClass || !$owner = $formOwnerClass::get()->byID($formOwnerID)){
             $this->httpError(404);
         }
         $fields = [];
-        if($fieldsData = $page->FormbuilderFields){
+        if($fieldsData = $owner->FormbuilderFields){
             $fields = json_decode($fieldsData);
         }
-        return new FormbuilderForm('FormbuilderForm', $fields, $page->ID);
+        return new FormbuilderForm('FormbuilderForm', $fields, $owner);
     }
 
 }

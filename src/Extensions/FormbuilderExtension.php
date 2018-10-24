@@ -36,7 +36,7 @@ class FormbuilderExtension extends DataExtension {
 
     public function updateCMSFields(FieldList $fields)
     {
-        $fields->addFieldsToTab('Root', new TabSet('Form', _t(self::class . '.FORM', 'Form')));
+        $fields->addFieldToTab('Root', new TabSet('Form', _t(self::class . '.FORM', 'Form')));
 
         $fields->addFieldToTab('Root.Form.Fields', FormbuilderFieldsField::create('FormbuilderFields', _t(self::class . '.FORMBUILDER_FIELDS', 'Fields')));
 
@@ -69,7 +69,7 @@ class FormbuilderExtension extends DataExtension {
         if($fieldsData = $this->owner->FormbuilderFields){
             $fields = json_decode($fieldsData);
         }
-        return new FormbuilderForm('FormbuilderForm', $fields, $this->owner->ID);
+        return new FormbuilderForm('FormbuilderForm', $fields, $this->owner);
     }
 
 }

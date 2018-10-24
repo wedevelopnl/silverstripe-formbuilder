@@ -12,6 +12,7 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\View\ArrayData;
@@ -39,7 +40,7 @@ class FormbuilderForm extends Form
      * @param string $fieldsJsonData
      * @param FieldList $pageID
      */
-    public function __construct($name = self::DEFAULT_NAME, $fieldsJsonData, $pageID)
+    public function __construct($name = self::DEFAULT_NAME, $fieldsJsonData, $owner)
     {
         //Name filter
         $this->_nameFilter = new URLSegmentFilter();
@@ -89,7 +90,8 @@ class FormbuilderForm extends Form
             }
         }
 
-        $fields->push(HiddenField::create('FormPageID')->setValue($pageID));
+        $fields->push(HiddenField::create('OwnerID')->setValue($owner->ID));
+        $fields->push(HiddenField::create('OwnerClass')->setValue($owner->ClassName));
 
         //Actions
         $actions = new FieldList(FormAction::create('handle', _t(self::class . '.SEND', 'Send')));
@@ -100,7 +102,7 @@ class FormbuilderForm extends Form
         if ($this->hasExtension('SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension')) {
             $this->enableSpamProtection();
         }
-        
+
         $this->extend('onAfterConstruct');
     }
 
@@ -123,18 +125,25 @@ class FormbuilderForm extends Form
      */
     public function handle($data, Form $form)
     {
-        //Get page
-        $page = SiteTree::get()->byID($data['FormPageID']);
+        //Get owner
+        $ownerClass = $data['OwnerClass'];
+        $owner = $ownerClass::get()->byID($data['OwnerID']);
 
         //Remove data
-        unset($data['FormPageID']);
+        $originalData = $data;
+        unset($data['OwnerID']);
+        unset($data['OwnerClass']);
         unset($data['SecurityID']);
         unset($data['action_handle']);
+        if (method_exists($owner, 'cleanupFormbuilderFormData')) {
+            $data = $owner->cleanupFormbuilderFormData($data);
+        }
 
         //Submission
         if(Config::inst()->get(FormbuilderExtension::class, 'save_submissions')){
             $submission = new FormbuilderSubmission();
-            $submission->SiteTreeID = $page->ID;
+            $submission->SiteTreeID = $owner->ID;
+            $submission->FormOwner = $owner->ID;
             $submission->Data = json_encode($data);
             $submission->write();
         }else{
@@ -142,11 +151,11 @@ class FormbuilderForm extends Form
         }
 
         //Email
-        $emailReceivers = $page->FormbuilderFormReceiver;
+        $emailReceivers = method_exists($owner, 'overruledFormbuilderFormReceiver') ? $owner->overruledFormbuilderFormReceiver($this, $originalData) : $owner->FormbuilderFormReceiver;
         if ($emailReceivers) {
-            $emailSubject = $page->FormbuilderFormSubject ? $page->FormbuilderFormSubject : _t(self::class . '.DEFAULT_SUBJECT', 'New email via the website');
-            $emailReplyTo = $page->FormbuilderFormReplyTo;
-            $emailSender = $page->FormbuilderFormSender;
+            $emailSubject = $owner->FormbuilderFormSubject ? $owner->FormbuilderFormSubject : _t(self::class . '.DEFAULT_SUBJECT', 'New email via the website');
+            $emailReplyTo = $owner->FormbuilderFormReplyTo;
+            $emailSender = $owner->FormbuilderFormSender ? $owner->FormbuilderFormSender : 'no-email@found.com';
             if (strpos($emailSender, '@') == FALSE) {
                 $emailSender = $data[$this->generateFieldName($emailSender, true)];
                 if (!$emailSender) {
@@ -188,10 +197,10 @@ class FormbuilderForm extends Form
         }
 
         //Auto reply email
-        if($page->FormbuilderAutoReplySender && $page->FormbuilderAutoReplyReceiver && $page->FormbuilderAutoReplySubject && $page->FormbuilderAutoReplyContent){
-            $receiver = $data[$this->generateFieldName($page->FormbuilderAutoReplyReceiver, true)];
+        if($owner->FormbuilderAutoReplySender && $owner->FormbuilderAutoReplyReceiver && $owner->FormbuilderAutoReplySubject && $owner->FormbuilderAutoReplyContent){
+            $receiver = $data[$this->generateFieldName($owner->FormbuilderAutoReplyReceiver, true)];
             if($receiver){
-                $emailContent = $page->FormbuilderAutoReplyContent;
+                $emailContent = $owner->FormbuilderAutoReplyContent;
                 foreach($data as $key => $value){
                     if(is_array($value)){
                         $value = implode(',', $value);
@@ -204,19 +213,19 @@ class FormbuilderForm extends Form
                 $email->setData([
                     'Content' => DBField::create_field(DBHTMLText::class, $emailContent)
                 ]);
-                $email->setFrom($page->FormbuilderAutoReplySender);
+                $email->setFrom($owner->FormbuilderAutoReplySender);
                 $email->setTo($receiver);
-                $email->setSubject($page->FormbuilderAutoReplySubject);
+                $email->setSubject($owner->FormbuilderAutoReplySubject);
                 $email->send();
             }
         }
 
         //Finish
-        if (method_exists($page, 'handleFormbuilderForm')) {
-            return $page->handleFormbuilderForm($this, $data, $submission);
+        if (method_exists($owner, 'handleFormbuilderForm')) {
+            return $owner->handleFormbuilderForm($this, $data, $submission);
         } else {
             $this->sessionMessage(_t(self::class . '.FORM_SEND_MESSAGE', 'Form send successfully'), 'good');
-            return $this->controller->redirect($page->Link());
+            return $this->controller->redirect($owner->Link());
         }
     }
 
