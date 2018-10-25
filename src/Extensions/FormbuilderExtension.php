@@ -27,7 +27,8 @@ class FormbuilderExtension extends DataExtension {
         'FormbuilderAutoReplySender' => 'Varchar(155)',
         'FormbuilderAutoReplyReceiver' => 'Varchar(155)',
         'FormbuilderAutoReplySubject' => 'Varchar',
-        'FormbuilderAutoReplyContent' => 'HTMLText'
+        'FormbuilderAutoReplyContent' => 'HTMLText',
+        'FormbuilderSendButtonText' => 'Varchar',
     ];
 
     private static $has_many = [
@@ -54,6 +55,8 @@ class FormbuilderExtension extends DataExtension {
             TextField::create('FormbuilderAutoReplySubject', _t(self::class . '.FORMBUILDER_AUTOREPLY_SUBJECT', 'Autoreply email subject')),
             HTMLEditorField::create('FormbuilderAutoReplyContent', _t(self::class . '.FORMBUILDER_AUTOREPLY_CONTENT', 'Autoreply email content'))->setDescription(_t(self::class . '.FORMBUILDER_AUTOREPLY_CONTENT_DESCRIPTION', 'You can use user input by wrapping the title of a field in brackets, for example: [Name]'))
         ]);
+        
+        $fields->addFieldToTab('Root.Form.Options', TextField::create('FormbuilderSendButtonText', _t(self::class . '.SEND_BUTTON_TEXT', 'Send button text')));
 
         if(Config::inst()->get(self::class, 'save_submissions')){
             $fields->findOrMakeTab('Root.Form.Submissions', _t(self::class . '.has_many_FormbuilderSubmissions', 'Submissions'));
