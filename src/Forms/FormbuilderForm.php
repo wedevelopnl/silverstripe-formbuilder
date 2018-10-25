@@ -94,7 +94,7 @@ class FormbuilderForm extends Form
         $fields->push(HiddenField::create('OwnerClass')->setValue($owner->ClassName));
 
         //Actions
-        $actions = new FieldList(FormAction::create('handle', _t(self::class . '.SEND', 'Send')));
+        $actions = new FieldList(FormAction::create('handle', $owner->FormbuilderSendButtonText ? $owner->FormbuilderSendButtonText : _t(self::class . '.SEND', 'Send')));
 
         $controller = new FormbuilderController();
         parent::__construct($controller, $name, $fields, $actions, $validator);
