@@ -186,7 +186,8 @@ class FormbuilderForm extends Form
                 $email = Email::create();
                 $email->setHTMLTemplate('Email\\FormbuilderEmail');
                 $email->setData([
-                    'FormData' => $emailData
+                    'FormData' => $emailData,
+                    'Owner' => $owner
                 ]);
                 $email->setReplyTo($emailReplyTo);
                 $email->setFrom($emailSender);
@@ -211,7 +212,8 @@ class FormbuilderForm extends Form
                 $email = Email::create();
                 $email->setHTMLTemplate('Email\\FormbuilderAutoReplayEmail');
                 $email->setData([
-                    'Content' => DBField::create_field(DBHTMLText::class, $emailContent)
+                    'Content' => DBField::create_field(DBHTMLText::class, $emailContent),
+                    'Owner' => $owner
                 ]);
                 $email->setFrom($owner->FormbuilderAutoReplySender);
                 $email->setTo($receiver);
