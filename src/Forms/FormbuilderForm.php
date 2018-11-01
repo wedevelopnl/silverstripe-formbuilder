@@ -185,10 +185,10 @@ class FormbuilderForm extends Form
             foreach ($emailReceivers as $receiver) {
                 $email = Email::create();
                 $email->setHTMLTemplate('Email\\FormbuilderEmail');
-                $email->setData([
+                $email->setData(new ArrayData([
                     'FormData' => $emailData,
                     'Owner' => $owner
-                ]);
+                ]));
                 $email->setReplyTo($emailReplyTo);
                 $email->setFrom($emailSender);
                 $email->setTo($receiver);
@@ -211,10 +211,10 @@ class FormbuilderForm extends Form
                 }
                 $email = Email::create();
                 $email->setHTMLTemplate('Email\\FormbuilderAutoReplayEmail');
-                $email->setData([
+                $email->setData(new ArrayData([
                     'Content' => DBField::create_field(DBHTMLText::class, $emailContent),
                     'Owner' => $owner
-                ]);
+                ]));
                 $email->setFrom($owner->FormbuilderAutoReplySender);
                 $email->setTo($receiver);
                 $email->setSubject($owner->FormbuilderAutoReplySubject);
