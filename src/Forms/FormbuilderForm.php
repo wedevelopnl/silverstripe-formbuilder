@@ -319,6 +319,8 @@ class FormbuilderForm extends Form
             }
         }
 
+        $this->extend('onHandleForm', $data, $form);
+
         //Finish
         if (method_exists($owner, 'handleFormbuilderForm')) {
             return $owner->handleFormbuilderForm($this, $data, $submission);
