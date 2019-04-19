@@ -4,11 +4,13 @@
                 <%t Formbuilder.MODELDROPDOWN "Model Dropdown" %>
             </td>
             <td>
-                <select name="value">
-                    <% loop $AllowedModelDropdownModels %>
-                        <option value="$class">$name</option>
-                    <% end_loop %>
-                </select>
+                <div class="formbuilder-modeldropdown">
+                    <select name="value">
+                        <% loop $AllowedModelDropdownModels %>
+                            <option value="$class">$name</option>
+                        <% end_loop %>
+                    </select>
+                </div>
             </td>
         </tr>
     </script>

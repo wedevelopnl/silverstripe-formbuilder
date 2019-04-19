@@ -3,7 +3,7 @@
             <td>
                 <%t Formbuilder.DROPDOWN "Dropdown" %>
             </td>
-            <td>test
+            <td>
                 <table class="formbuilder-multipleoptions">
                     <tr>
                         <td><input type="text" class="text" placeholder="<%t Formbuilder.VALUE "Value" %>" name="value" /></td>

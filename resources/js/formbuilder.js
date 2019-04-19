@@ -87,6 +87,20 @@
           }
         }
 
+        var modelDropdown = newRow.find('.formbuilder-modeldropdown');
+        if (modelDropdown.length)
+        {
+          if (data !== undefined)
+          {
+            var selected = data.model;
+            $('select', modelDropdown).val(selected);
+          }
+          var base = this;
+          modelDropdown.on('change', 'select', function () {
+            base.updateJSON();
+          });
+        }
+
         var multipleOptions = newRow.find('.formbuilder-multipleoptions');
         if (multipleOptions.length) {
           var options = false;
@@ -168,6 +182,12 @@
               'title': row.find('.formbuilder-title').val(),
               'required': row.find('.formbuilder-required').is(':checked')
             };
+            var modelDropdown = row.find('.formbuilder-modeldropdown');
+            if (modelDropdown.length)
+            {
+              rowData.model = modelDropdown.find('select')[0].value;
+              console.log(rowData.class);
+            }
             var multiOptions = row.find('.formbuilder-multipleoptions');
             if (multiOptions.length) {
               var options = [];
