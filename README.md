@@ -28,3 +28,25 @@ This can be used to redirect users to a success page, this method is called afte
 
 ## Spam protection
 If the https://github.com/silverstripe/silverstripe-spamprotection module is installed then the form will add a spam protection field automatically
+
+
+## The ModelDropdownfieldField type
+There has been added a new input type called "Model Dropdownfield" which gives you the ability to fill a dropdown based on a dataobject model. One of the abilities you'll gain while using this input type, is the ability to link two dropdown/select items (eg. a province dropdown that updates another dropdown with cities from the selected province).
+
+You can configure a field like this:
+
+```
+TheWebmen\Formbuilder\Fields\ModelDropdownField:
+  models:
+    - DataObjects\ModelDropdown\Provinces:
+        class: 'DataObjects\ModelDropdown\Provinces'
+        key: 'ID'
+        value: 'Name'
+        relation:
+          relation: 'Locations'
+          title: 'Vestiging'
+          linked_by: 'ProvinceID'
+          class: 'DataObjects\ModelDropdown\Locations'
+          key: 'Code'
+          value: 'Name'
+```
