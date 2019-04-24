@@ -6,6 +6,7 @@ use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\TextField;
@@ -19,6 +20,7 @@ use SilverStripe\View\ArrayData;
 use SilverStripe\View\Parsers\URLSegmentFilter;
 use TheWebmen\Formbuilder\Controllers\FormbuilderController;
 use TheWebmen\Formbuilder\Extensions\FormbuilderExtension;
+use TheWebmen\Formbuilder\Fields\ModelDropdownField;
 use TheWebmen\Formbuilder\Model\FormbuilderSubmission;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\CheckboxSetField;
@@ -42,6 +44,8 @@ class FormbuilderForm extends Form
      */
     public function __construct($name = self::DEFAULT_NAME, $fieldsJsonData, $owner)
     {
+        $hasModelDropdown = false;
+
         //Name filter
         $this->_nameFilter = new URLSegmentFilter();
 
@@ -50,7 +54,7 @@ class FormbuilderForm extends Form
 
         //Fields
         $fields = new FieldList();
-        foreach ($fieldsJsonData as $fieldJsonData) {
+        foreach ($fieldsJsonData as $fieldsJsonIndex => $fieldJsonData) {
             $field = false;
             if (!isset($fieldJsonData->title) || $fieldJsonData->title == '') {
                 continue;
@@ -82,20 +86,109 @@ class FormbuilderForm extends Form
                     $field = OptionsetField::create($fieldName, $fieldJsonData->title, $options);
                     break;
                 case 'modeldropdown':
+                    $hasModelDropdown = true;
+                    $model = $fieldsJsonData[$fieldsJsonIndex]->model;
+                    $config = ModelDropdownField::get_config_data()->get('models');
+                    $modelConfig = false;
+                    foreach ($config as $item)
+                    {
+                        if (array_key_exists($model, $item))
+                        {
+                            $modelConfig = $item[$model];
+                            break;
+                        }
+                    }
+                    if ($modelConfig === false)
+                        throw new \Exception('No configuration available for '.$model);
+
+                    $data = $model::get();
+                    $options = [];
+                    $firstID = null;
+                    foreach ($data as $datum)
+                    {
+                        if (is_null($firstID))
+                        {
+                            $firstID = $datum->ID;
+                        }
+                        $options[$datum->{$modelConfig['key']}] = $datum->{$modelConfig['value']};
+                    }
+                    $field = ModelDropdownField::create($fieldName, $fieldJsonData->title, $options);
+
+                    if (array_key_exists('relation', $modelConfig))
+                    {
+                        $field->setOverrideValidator(true);
+                        $field->setAttribute('data-data', $modelConfig['relation']['relation'] . '_values');
+                        $field->setAttribute('data-relation-dropdown', 'parent');
+                        $field = [$field];
+
+                        $relationModel = $modelConfig['relation']['class'];
+                        $relationModelEntities = $relationModel::get();
+                        $initialOptions = [];
+                        $subOptions = [];
+                        foreach ($relationModelEntities as $relationModelEntity)
+                        {
+                            if ($relationModelEntity->{$modelConfig['relation']['linked_by']} == $firstID)
+                            {
+                                $initialOptions[$relationModelEntity->{$modelConfig['relation']['key']}] = $relationModelEntity->{$modelConfig['relation']['value']};
+                            }
+
+                            if (!array_key_exists($relationModelEntity->{$modelConfig['relation']['linked_by']}, $subOptions))
+                            {
+                                $subOptions[$relationModelEntity->{$modelConfig['relation']['linked_by']}] = [];
+                            }
+                            $subOptions[$relationModelEntity->{$modelConfig['relation']['linked_by']}][] = [
+                                'Key'      => $relationModelEntity->{$modelConfig['relation']['key']},
+                                'Value'    => $relationModelEntity->{$modelConfig['relation']['value']}
+                            ];
+                        }
+
+
+                        $subOptionsJson = json_encode($subOptions);
+
+                        $field2 = ModelDropdownField::create($modelConfig['relation']['relation'], $modelConfig['relation']['title'], $initialOptions);
+                        $field2->setOverrideValidator(true);
+                        $field2->setAttribute('data-data', $modelConfig['relation']['relation'] . '_values');
+                        $field2->setAttribute('data-relation-dropdown', 'child');
+
+
+                        $field[] = $field2;
+                        $field[] = LiteralField::create($modelConfig['relation']['relation'] . '_values', '<script type="text/javascript">var ' . $modelConfig['relation']['relation'] . '_values = ' . $subOptionsJson . ';</script>');
+                    }
                     break;
                 default:
                     $this->extend('onDefaultFieldSwitch');
             }
             if ($field) {
-                $fields->push($field);
-                if ($fieldJsonData->required) {
-                    $validator->addRequiredField($fieldName);
+                if (!is_array($field))
+                {
+                    $fields->push($field);
+                    if ($fieldJsonData->required)
+                    {
+                        $validator->addRequiredField($fieldName);
+                    }
+                }
+                else
+                {
+                    foreach ($field as $item)
+                    {
+                        $fields->push($item);
+                    }
+                    if ($fieldJsonData->required)
+                    {
+                        $validator->addRequiredField($fieldName);
+                        $validator->addRequiredField($modelConfig['relation']['relation']);
+                    }
                 }
             }
         }
 
         $fields->push(HiddenField::create('OwnerID')->setValue($owner->ID));
         $fields->push(HiddenField::create('OwnerClass')->setValue($owner->ClassName));
+
+        if ($hasModelDropdown)
+        {
+            $fields->push(new LiteralField('modelDropdownScript', ModelDropdownField::get_frontend_javascript()));
+        }
 
         //Actions
         $actions = new FieldList(FormAction::create('handle', $owner->FormbuilderSendButtonText ? $owner->FormbuilderSendButtonText : _t(self::class . '.SEND', 'Send')));
@@ -104,7 +197,7 @@ class FormbuilderForm extends Form
         parent::__construct($controller, $name, $fields, $actions, $validator);
 
         if ($this->hasExtension('SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension')) {
-            $this->enableSpamProtection();
+            //$this->enableSpamProtection();
         }
 
         $this->extend('onAfterConstruct');
@@ -225,6 +318,8 @@ class FormbuilderForm extends Form
                 $email->send();
             }
         }
+
+        $this->extend('onHandleForm', $data, $form);
 
         //Finish
         if (method_exists($owner, 'handleFormbuilderForm')) {
