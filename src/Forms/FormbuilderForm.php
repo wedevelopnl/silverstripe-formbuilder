@@ -81,6 +81,10 @@ class FormbuilderForm extends Form
                     $options = $this->generateOptions($fieldJsonData->options);
                     $field = OptionsetField::create($fieldName, $fieldJsonData->title, $options);
                     break;
+                case 'modeldropdown':
+                    break;
+                default:
+                    $this->extend('onDefaultFieldSwitch');
             }
             if ($field) {
                 $fields->push($field);
