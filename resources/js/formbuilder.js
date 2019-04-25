@@ -1,3 +1,13 @@
+function create_UUID(){
+  var dt = new Date().getTime();
+  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = (dt + Math.random()*16)%16 | 0;
+    dt = Math.floor(dt/16);
+    return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+  });
+  return uuid;
+}
+
 (function ($) {
   $.entwine('ss', function ($) {
 
@@ -77,11 +87,19 @@
         var typeTemplate = this.find('.' + type + '-template');
         var fieldHTML = typeTemplate.html();
         var newRow = $(fieldHTML).hide();
+
+        if (data)
+          var fieldID = data.id !== undefined ? data.id : create_UUID();
+        else
+          var fieldID = create_UUID();
+
+        // console.log(fieldID);
+
         this.prepareRow(newRow, type);
         this.find('.formbuilder-fields > tbody').append(newRow);
 
         if (data) {
-          newRow.find('.formbuilder-title').val(data.title);
+          newRow.find('.formbuilder-title').val(data.title).data('field-id', fieldID);
           if (data.required) {
             newRow.find('.formbuilder-required').attr('checked', 'checked');
           }
@@ -177,7 +195,14 @@
           table.show();
           rows.each(function () {
             var row = $(this);
+            var fieldID = row.find('.formbuilder-title').data('field-id');
+            if (fieldID === undefined)
+            {
+              fieldID = create_UUID();
+              row.find('.formbuilder-title').data('field-id', fieldID);
+            }
             var rowData = {
+              'id': fieldID,
               'type': row.find('.formbuilder-type').val(),
               'title': row.find('.formbuilder-title').val(),
               'required': row.find('.formbuilder-required').is(':checked')
@@ -186,7 +211,6 @@
             if (modelDropdown.length)
             {
               rowData.model = modelDropdown.find('select')[0].value;
-              console.log(rowData.class);
             }
             var multiOptions = row.find('.formbuilder-multipleoptions');
             if (multiOptions.length) {
