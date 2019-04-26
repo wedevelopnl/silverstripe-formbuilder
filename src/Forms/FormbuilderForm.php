@@ -45,6 +45,7 @@ class FormbuilderForm extends Form
     public function __construct($name = self::DEFAULT_NAME, $fieldsJsonData, $owner)
     {
         $hasModelDropdown = false;
+        $modelDropdownConfig = false;
 
         //Name filter
         $this->_nameFilter = new URLSegmentFilter();
@@ -89,16 +90,15 @@ class FormbuilderForm extends Form
                     $hasModelDropdown = true;
                     $model = $fieldsJsonData[$fieldsJsonIndex]->model;
                     $config = ModelDropdownField::get_config_data()->get('models');
-                    $modelConfig = false;
                     foreach ($config as $item)
                     {
                         if (array_key_exists($model, $item))
                         {
-                            $modelConfig = $item[$model];
+                            $modelDropdownConfig = $item[$model];
                             break;
                         }
                     }
-                    if ($modelConfig === false)
+                    if ($modelDropdownConfig === false)
                         throw new \Exception('No configuration available for '.$model);
 
                     $data = $model::get();
@@ -110,49 +110,77 @@ class FormbuilderForm extends Form
                         {
                             $firstID = $datum->ID;
                         }
-                        $options[$datum->{$modelConfig['key']}] = $datum->{$modelConfig['value']};
+                        $options[$datum->{$modelDropdownConfig['key']}] = $datum->{$modelDropdownConfig['value']};
                     }
                     $field = ModelDropdownField::create($fieldName, $fieldJsonData->title, $options);
 
-                    if (array_key_exists('relation', $modelConfig))
+                    if (isset($modelDropdownConfig['placeholder']))
                     {
+                        $field->setHasEmptyDefault(true);
+                        $field->setEmptyString($modelDropdownConfig['placeholder']);
+                    }
+
+
+                    if (array_key_exists('relation', $modelDropdownConfig))
+                    {
+
                         $field->setOverrideValidator(true);
-                        $field->setAttribute('data-data', $modelConfig['relation']['relation'] . '_values');
+                        $field->setAttribute('data-data', $modelDropdownConfig['relation']['relation'] . '_values');
                         $field->setAttribute('data-relation-dropdown', 'parent');
                         $field = [$field];
 
-                        $relationModel = $modelConfig['relation']['class'];
+                        $relationModel = $modelDropdownConfig['relation']['class'];
                         $relationModelEntities = $relationModel::get();
                         $initialOptions = [];
                         $subOptions = [];
+
+                        if (isset($modelDropdownConfig['relation']['placeholder']))
+                        {
+                            $initialOptions[$modelDropdownConfig['relation']['placeholder']] = $modelDropdownConfig['relation']['placeholder'];
+                        }
+
                         foreach ($relationModelEntities as $relationModelEntity)
                         {
-                            if ($relationModelEntity->{$modelConfig['relation']['linked_by']} == $firstID)
+                            if (!array_key_exists('placeholder', $modelDropdownConfig['relation']))
                             {
-                                $initialOptions[$relationModelEntity->{$modelConfig['relation']['key']}] = $relationModelEntity->{$modelConfig['relation']['value']};
+                                if ($relationModelEntity->{$modelDropdownConfig['relation']['linked_by']} == $firstID)
+                                {
+                                    $initialOptions[$relationModelEntity->{$modelDropdownConfig['relation']['key']}] = $relationModelEntity->{$modelDropdownConfig['relation']['value']};
+                                }
                             }
 
-                            if (!array_key_exists($relationModelEntity->{$modelConfig['relation']['linked_by']}, $subOptions))
+                            if (!array_key_exists($relationModelEntity->{$modelDropdownConfig['relation']['linked_by']}, $subOptions))
                             {
-                                $subOptions[$relationModelEntity->{$modelConfig['relation']['linked_by']}] = [];
+                                $subOptions[$relationModelEntity->{$modelDropdownConfig['relation']['linked_by']}] = [];
+                                if (isset($modelDropdownConfig['relation']['placeholder']))
+                                {
+                                    $subOptions[$relationModelEntity->{$modelDropdownConfig['relation']['linked_by']}][] = ['Key' => $modelDropdownConfig['relation']['placeholder'], 'Value' => $modelDropdownConfig['relation']['placeholder']];
+                                }
+
                             }
-                            $subOptions[$relationModelEntity->{$modelConfig['relation']['linked_by']}][] = [
-                                'Key'      => $relationModelEntity->{$modelConfig['relation']['key']},
-                                'Value'    => $relationModelEntity->{$modelConfig['relation']['value']}
+                            $subOptions[$relationModelEntity->{$modelDropdownConfig['relation']['linked_by']}][] = [
+                                'Key'   => $relationModelEntity->{$modelDropdownConfig['relation']['key']},
+                                'Value' => $relationModelEntity->{$modelDropdownConfig['relation']['value']}
                             ];
                         }
 
 
                         $subOptionsJson = json_encode($subOptions);
 
-                        $field2 = ModelDropdownField::create($modelConfig['relation']['relation'], $modelConfig['relation']['title'], $initialOptions);
+                        $field2 = ModelDropdownField::create($modelDropdownConfig['relation']['relation'], $modelDropdownConfig['relation']['title'], $initialOptions);
                         $field2->setOverrideValidator(true);
-                        $field2->setAttribute('data-data', $modelConfig['relation']['relation'] . '_values');
+                        $field2->setAttribute('data-data', $modelDropdownConfig['relation']['relation'] . '_values');
                         $field2->setAttribute('data-relation-dropdown', 'child');
+
+                        if (isset($modelDropdownConfig['relation']['placeholder']))
+                        {
+                            $field2->setHasEmptyDefault(true);
+                            $field2->setEmptyString($modelDropdownConfig['relation']['placeholder']);
+                        }
 
 
                         $field[] = $field2;
-                        $field[] = LiteralField::create($modelConfig['relation']['relation'] . '_values', '<script type="text/javascript">var ' . $modelConfig['relation']['relation'] . '_values = ' . $subOptionsJson . ';</script>');
+                        $field[] = LiteralField::create($modelDropdownConfig['relation']['relation'] . '_values', '<script type="text/javascript">var ' . $modelDropdownConfig['relation']['relation'] . '_values = ' . $subOptionsJson . ';</script>');
                     }
                     break;
                 default:
@@ -176,7 +204,7 @@ class FormbuilderForm extends Form
                     if ($fieldJsonData->required)
                     {
                         $validator->addRequiredField($fieldName);
-                        $validator->addRequiredField($modelConfig['relation']['relation']);
+                        $validator->addRequiredField($modelDropdownConfig['relation']['relation']);
                     }
                 }
             }
@@ -187,7 +215,7 @@ class FormbuilderForm extends Form
 
         if ($hasModelDropdown)
         {
-            $fields->push(new LiteralField('modelDropdownScript', ModelDropdownField::get_frontend_javascript()));
+            $fields->push(new LiteralField('modelDropdownScript', ModelDropdownField::get_frontend_javascript($modelDropdownConfig)));
         }
 
         //Actions
