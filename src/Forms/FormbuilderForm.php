@@ -207,6 +207,11 @@ class FormbuilderForm extends Form
                         $validator->addRequiredField($modelDropdownConfig['relation']['relation']);
                     }
                 }
+
+                if (!empty($fieldJsonData->infotext))
+                {
+                    $fields->push(new LiteralField('infoText', '<span class="formbuilder-info-text-container"><span class="formbuilder-info-text">'.$fieldJsonData->infotext.'</span></span>'));
+                }
             }
         }
 
@@ -225,7 +230,7 @@ class FormbuilderForm extends Form
         parent::__construct($controller, $name, $fields, $actions, $validator);
 
         if ($this->hasExtension('SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension')) {
-            //$this->enableSpamProtection();
+//            $this->enableSpamProtection();
         }
 
         $this->extend('onAfterConstruct');

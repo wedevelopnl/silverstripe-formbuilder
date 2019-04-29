@@ -47,7 +47,7 @@ function create_UUID(){
         });
 
         //Input change
-        this.on('change', '.formbuilder-title, .formbuilder-required', function () {
+        this.on('change', '.formbuilder-title, .formbuilder-required, .formbuilder-infotext', function () {
           self.updateJSON();
         });
 
@@ -73,6 +73,7 @@ function create_UUID(){
         sortCol.append('<input type="hidden" class="formbuilder-type" value="' + type + '" />');
         row.prepend(sortCol);
         row.find('td').eq(1).after('<td><input class="text formbuilder-title" type="text" placeholder="Title" /></td>');
+        row.append('<td><input class="formbuilder-infotext text" type="text" /></td>');
         row.append('<td><input class="formbuilder-required" type="checkbox" /></td>');
         row.append('<td><a href="#" class="btn--icon-md font-icon-trash-bin btn--no-text formbuilder-remove"></a></td>');
       },
@@ -102,6 +103,10 @@ function create_UUID(){
           newRow.find('.formbuilder-title').val(data.title).data('field-id', fieldID);
           if (data.required) {
             newRow.find('.formbuilder-required').attr('checked', 'checked');
+          }
+          if (data.hasOwnProperty('infotext'))
+          {
+            newRow.find('.formbuilder-infotext').val(data.infotext);
           }
         }
 
@@ -205,6 +210,7 @@ function create_UUID(){
               'id': fieldID,
               'type': row.find('.formbuilder-type').val(),
               'title': row.find('.formbuilder-title').val(),
+              'infotext': row.find('.formbuilder-infotext').val(),
               'required': row.find('.formbuilder-required').is(':checked')
             };
             var modelDropdown = row.find('.formbuilder-modeldropdown');

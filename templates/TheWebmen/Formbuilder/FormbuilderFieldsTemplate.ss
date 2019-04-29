@@ -18,8 +18,9 @@
             <tr>
                 <th style="width: 1%">&nbsp;</th>
                 <th style="width: 1%"><%t Formbuilder.FIELD_TYPE "Field type" %></th>
-                <th style="width: 50%"><%t Formbuilder.FIELD_TITLE "Field title" %></th>
-                <th style="width: 50%"><%t Formbuilder.OPTIONS "Options" %></th>
+                <th style="width: 33%"><%t Formbuilder.FIELD_TITLE "Field title" %></th>
+                <th style="width: 31%"><%t Formbuilder.OPTIONS "Options" %></th>
+                <th style="width: 31%"><%t Formbuilder.INFO_TEXT "Infotext" %></th>
                 <th style="width: 1%"><%t Formbuilder.REQUIRED "Required" %></th>
                 <th style="width: 1%">&nbsp;</th>
             </tr>
