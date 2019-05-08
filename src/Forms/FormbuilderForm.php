@@ -255,6 +255,8 @@ class FormbuilderForm extends Form
      */
     public function handle($data, Form $form)
     {
+        $this->extend('onPreHandleForm', $data, $form);
+
         //Get owner
         $ownerClass = $data['OwnerClass'];
         $owner = $ownerClass::get()->byID($data['OwnerID']);
