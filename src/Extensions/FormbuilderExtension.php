@@ -3,6 +3,9 @@
 namespace TheWebmen\Formbuilder\Extensions;
 
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\GridField\GridFieldConfig;
+use SilverStripe\Forms\GridField\GridFieldDeleteAction;
+use SilverStripe\Forms\GridField\GridFieldExportButton;
 use SilverStripe\Forms\TabSet;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\Forms\FieldList;
@@ -60,7 +63,21 @@ class FormbuilderExtension extends DataExtension {
 
         if(Config::inst()->get(self::class, 'save_submissions')){
             $fields->findOrMakeTab('Root.Form.Submissions', _t(self::class . '.has_many_FormbuilderSubmissions', 'Submissions'));
-            $fields->addFieldToTab('Root.Form.Submissions', GridField::create('FormbuilderSubmissions', _t(self::class . '.FORMBUILDER_SUBMISSIONS', 'Submissions'), $this->owner->FormbuilderSubmissions(), GridFieldConfig_RecordViewer::create()));
+            $fields->addFieldToTab('Root.Form.Submissions', $gfSubmissions = GridField::create('FormbuilderSubmissions', _t(self::class . '.FORMBUILDER_SUBMISSIONS', 'Submissions'), $this->owner->FormbuilderSubmissions(), GridFieldConfig_RecordViewer::create()));
+
+            $gfcConfig = $gfSubmissions->getConfig();
+            $gfcConfig->addComponent($gfebExportButton = new GridFieldExportButton('before'));
+            $gfcConfig->addComponent(new GridFieldDeleteAction());
+
+            $fields = [];
+            if($fieldsData = $this->owner->FormbuilderFields){
+                $fieldObjects = json_decode($fieldsData);
+                foreach ($fieldObjects as $fieldObject)
+                    $fields[] = $fieldObject->title;
+            }
+
+            $gfebExportButton->setExportColumns($fields);
+
         }else{
             $fields->removeByName('FormbuilderSubmissions');
         }

@@ -5,6 +5,7 @@ namespace TheWebmen\Formbuilder\Model;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Forms\TextField;
+use SilverStripe\View\Parsers\URLSegmentFilter;
 
 class FormbuilderSubmission extends DataObject {
 
@@ -41,6 +42,22 @@ class FormbuilderSubmission extends DataObject {
         }
 
         return $fields;
+    }
+
+    public function __get($property)
+    {
+        $data = parent::__get('Data');
+        $prop = parent::__get($property);
+        $test = json_decode($data, true);
+        $filter = new URLSegmentFilter();
+
+        if (is_null($prop) && array_key_exists($filter->filter($property), $test))
+            return $test[$filter->filter($property)];
+
+        if (is_null($prop) && array_key_exists($property, $test))
+            return $test[$property];
+
+        return $prop;
     }
 
 }
