@@ -118,6 +118,9 @@ class FormbuilderForm extends Form
                     }
                     $field = ModelDropdownField::create($fieldName, $fieldJsonData->title, $options);
 
+                    if (isset($modelDropdownConfig['no_selection_error']))
+                        $field->setCustomErrorMessage($modelDropdownConfig['no_selection_error']);
+
                     if (isset($modelDropdownConfig['placeholder']))
                     {
                         $field->setHasEmptyDefault(true);
@@ -175,6 +178,9 @@ class FormbuilderForm extends Form
                         $field2->setOverrideValidator(true);
                         $field2->setAttribute('data-data', $modelDropdownConfig['relation']['relation'] . '_values');
                         $field2->setAttribute('data-relation-dropdown', 'child');
+
+                        if (isset($modelDropdownConfig['relation']['no_selection_error']))
+                            $field2->setCustomErrorMessage($modelDropdownConfig['relation']['no_selection_error']);
 
                         if (isset($modelDropdownConfig['relation']['placeholder']))
                         {
