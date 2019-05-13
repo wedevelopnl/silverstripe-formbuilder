@@ -26,6 +26,9 @@ class FormbuilderFieldsField extends TextareaField {
         $this->_fields->push(ArrayData::create(['Template' => 'TheWebmen\\Formbuilder\\Fields\\Emailfield',
                                                 'Field' => 'emailfield',
                                                 'Label' => i18n::_t('Formbuilder.EMAILFIELD', 'Emailfield')]));
+        $this->_fields->push(ArrayData::create(['Template' => 'TheWebmen\\Formbuilder\\Fields\\Phonefield',
+                                                'Field' => 'phonefield',
+                                                'Label' => i18n::_t('Formbuilder.PHONEFIELD', 'Phonefield')]));
         $this->_fields->push(ArrayData::create(['Template' => 'TheWebmen\\Formbuilder\\Fields\\Checkbox',
                                                 'Field' => 'checkbox',
                                                 'Label' => i18n::_t('Formbuilder.CHECKBOX', 'Checkbox')]));

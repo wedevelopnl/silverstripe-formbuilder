@@ -21,6 +21,7 @@ use SilverStripe\View\Parsers\URLSegmentFilter;
 use TheWebmen\Formbuilder\Controllers\FormbuilderController;
 use TheWebmen\Formbuilder\Extensions\FormbuilderExtension;
 use TheWebmen\Formbuilder\Fields\ModelDropdownField;
+use TheWebmen\Formbuilder\Fields\PhoneField;
 use TheWebmen\Formbuilder\Model\FormbuilderSubmission;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\CheckboxSetField;
@@ -64,6 +65,9 @@ class FormbuilderForm extends Form
             switch ($fieldJsonData->type) {
                 case 'textfield':
                     $field = TextField::create($fieldName, $fieldJsonData->title);
+                    break;
+                case 'phonefield':
+                    $field = PhoneField::create($fieldName, $fieldJsonData->title);
                     break;
                 case 'textarea':
                     $field = TextareaField::create($fieldName, $fieldJsonData->title);
