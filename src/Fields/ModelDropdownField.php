@@ -9,15 +9,32 @@ class ModelDropdownField extends \SilverStripe\Forms\DropdownField
 {
     private $_overrideValidator = false;
     private static $_fieldsSetToDefault = 0;
+    private $_customErrorMessage = false;
+
+    /**
+     * @param mixed $customErrorMessage
+     */
+    public function setCustomErrorMessage($customErrorMessage)
+    {
+        $this->_customErrorMessage = $customErrorMessage;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCustomErrorMessage()
+    {
+        return $this->_customErrorMessage;
+    }
 
     public function setOverrideValidator($bool)
     {
-        $this->overrideValidator = $bool;
+        $this->_overrideValidator = $bool;
     }
 
     public function getOverrideValidator()
     {
-        return $this->overrideValidator;
+        return $this->_overrideValidator;
     }
 
     public function validate($validator)
@@ -32,7 +49,7 @@ class ModelDropdownField extends \SilverStripe\Forms\DropdownField
 
             $validator->validationError(
                 $this->name,
-                _t(
+                $this->_customErrorMessage !== false ? $this->_customErrorMessage : _t(
                     'SilverStripe\\Forms\\ModelDropdownField.SOURCE_VALIDATION',
                     "Please select a value within the list provided. {value} is not a valid option",
                     array('value' => $val)
