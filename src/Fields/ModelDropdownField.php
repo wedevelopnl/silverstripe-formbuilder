@@ -33,7 +33,7 @@ class ModelDropdownField extends \SilverStripe\Forms\DropdownField
             $validator->validationError(
                 $this->name,
                 _t(
-                    'SilverStripe\\Forms\\DropdownField.SOURCE_VALIDATION',
+                    'SilverStripe\\Forms\\ModelDropdownField.SOURCE_VALIDATION',
                     "Please select a value within the list provided. {value} is not a valid option",
                     array('value' => $val)
                 ),
