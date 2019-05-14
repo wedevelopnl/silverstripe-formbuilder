@@ -105,7 +105,7 @@ class FormbuilderForm extends Form
                     if ($modelDropdownConfig === false)
                         throw new \Exception('No configuration available for '.$model);
 
-                    $data = $model::get();
+                    $data = $model::get()->sort($modelDropdownConfig['value']);
                     $options = [];
                     $firstID = null;
                     foreach ($data as $datum)
@@ -137,7 +137,7 @@ class FormbuilderForm extends Form
                         $field = [$field];
 
                         $relationModel = $modelDropdownConfig['relation']['class'];
-                        $relationModelEntities = $relationModel::get();
+                        $relationModelEntities = $relationModel::get()->sort($modelDropdownConfig['relation']['value']);
                         $initialOptions = [];
                         $subOptions = [];
 
