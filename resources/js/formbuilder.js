@@ -85,6 +85,7 @@ function create_UUID(){
        * @param silent
        */
       addField: function (type, data, silent) {
+        console.log('New field?');
         var typeTemplate = this.find('.' + type + '-template');
         var fieldHTML = typeTemplate.html();
         var newRow = $(fieldHTML).hide();
