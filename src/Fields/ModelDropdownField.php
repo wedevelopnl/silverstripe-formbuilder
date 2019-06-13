@@ -71,7 +71,7 @@ class ModelDropdownField extends \SilverStripe\Forms\DropdownField
 
         $return = ArrayList::create();
         
-        if (isset($models) && in_array($models)) {
+        if (isset($models) && is_array($models)) {
             foreach ($models as $model)
             {
                 $model = reset($model);
