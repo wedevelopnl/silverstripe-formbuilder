@@ -70,13 +70,15 @@ class ModelDropdownField extends \SilverStripe\Forms\DropdownField
         $models = self::get_config_data()->get('models');
 
         $return = ArrayList::create();
-
-        foreach ($models as $model)
-        {
-            $model = reset($model);
-            $return->push(new ArrayData(['class' => $model['class'], 'name' => (new $model['class']())->plural_name()]));
+        
+        if (isset($models) && in_array($models)) {
+            foreach ($models as $model)
+            {
+                $model = reset($model);
+                $return->push(new ArrayData(['class' => $model['class'], 'name' => (new $model['class']())->plural_name()]));
+            }
         }
-
+        
         return $return;
     }
 
