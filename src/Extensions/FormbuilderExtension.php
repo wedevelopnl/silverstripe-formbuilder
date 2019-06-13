@@ -73,7 +73,12 @@ class FormbuilderExtension extends DataExtension {
             if($fieldsData = $this->owner->FormbuilderFields){
                 $fieldObjects = json_decode($fieldsData);
                 foreach ($fieldObjects as $fieldObject)
-                    $fields[] = $fieldObject->title;
+                {
+                    if (property_exists($fieldObject, 'title'))
+                    {
+                        $fields[] = $fieldObject->title;
+                    }
+                }
             }
 
             $gfebExportButton->setExportColumns($fields);
