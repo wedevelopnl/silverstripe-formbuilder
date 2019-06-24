@@ -3,6 +3,7 @@
 namespace TheWebmen\Formbuilder\Extensions;
 
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Extensible;
 use SilverStripe\Forms\GridField\GridFieldConfig;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
 use SilverStripe\Forms\GridField\GridFieldExportButton;
@@ -18,6 +19,7 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
 
 class FormbuilderExtension extends DataExtension {
+    use Extensible;
 
     private static $save_submissions = true;
 
@@ -70,6 +72,7 @@ class FormbuilderExtension extends DataExtension {
             $gfcConfig->addComponent(new GridFieldDeleteAction());
 
             $fields = [];
+
             if($fieldsData = $this->owner->FormbuilderFields){
                 $fieldObjects = json_decode($fieldsData);
                 foreach ($fieldObjects as $fieldObject)
@@ -79,6 +82,13 @@ class FormbuilderExtension extends DataExtension {
                         $fields[] = $fieldObject->title;
                     }
                 }
+            }
+
+            $dataFields = [];
+            $this->extend('customExportFields', $fields, $dataFields);
+            if (count($dataFields) > 0)
+            {
+                $gfSubmissions->addDataFields($dataFields);
             }
 
             $gfebExportButton->setExportColumns($fields);
