@@ -268,8 +268,7 @@ class FormbuilderForm extends Form
         $this->extend('onPreHandleForm', $data, $form);
 
         //Get owner
-        $ownerClass = $data['OwnerClass'];
-        $owner = $ownerClass::get()->byID($data['OwnerID']);
+        $owner = $this->controller->getOwnerFromData($data);
 
         //Remove data
         $originalData = $data;
