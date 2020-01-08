@@ -51,11 +51,14 @@ class FormbuilderSubmission extends DataObject {
         $test = json_decode($data, true);
         $filter = new URLSegmentFilter();
 
-        if (is_null($prop) && array_key_exists($filter->filter($property), $test))
-            return $test[$filter->filter($property)];
+        if (is_null($prop) && array_key_exists($filter->filter($property), $test)) {
+            $property = $filter->filter($property);
+            return is_array($test[$property]) ? implode(',', $test[$property]) : $test[$property];
+        }
 
-        if (is_null($prop) && array_key_exists($property, $test))
-            return $test[$property];
+        if (is_null($prop) && array_key_exists($property, $test)) {
+            return is_array($test[$property]) ? implode(',', $test[$property]) : $test[$property];
+        }
 
         return $prop;
     }
