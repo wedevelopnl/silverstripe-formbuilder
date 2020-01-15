@@ -47,9 +47,14 @@ class FormbuilderSubmission extends DataObject {
     public function __get($property)
     {
         $data = parent::__get('Data');
-        $prop = parent::__get($property);
         $test = json_decode($data, true);
         $filter = new URLSegmentFilter();
+        
+        try {
+            $prop = parent::__get($property);
+        } catch (\Exception $exception) {
+            $prop = null;
+        }
 
         if (is_null($prop) && array_key_exists($filter->filter($property), $test)) {
             $property = $filter->filter($property);
